@@ -1,0 +1,29 @@
+{
+  "name": "twitch-control",
+  "version": "1.0.0",
+  "description": "watch twitch chat and do stuff",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node -r esm goats.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spencerlambert/twitch-control.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/spencerlambert/twitch-control/issues"
+  },
+  "homepage": "https://github.com/spencerlambert/twitch-control#readme",
+  "dependencies": {
+    "esm": "^3.2.25",
+    "fili": "^2.0.3",
+    "obs-websocket-js": "^3.1.0",
+    "onvif": "^0.6.0",
+    "redis": "^2.8.0",
+    "tmi.js": "^1.4.5",
+    "websocket": "^1.0.29"
+  }
+}
