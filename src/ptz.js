@@ -45,6 +45,14 @@ export default class PTZ {
     return shortcuts
   }
 
+  move (coords) {
+    this.cam.absoluteMove({
+      x: this.calcPan(coords.pan),
+      y: this.calcTilt(coords.tilt),
+      zoom: this.calcZoom(coords.zoom)
+    })
+  }
+
   calcPan (pan) {
     let v = Number(pan)
 

@@ -104,7 +104,6 @@ function chatBot (str, context) {
           sayForSubs()
           return
         }
-        saveShortcut('undo', 'undo')
         obs_view.processChat(str);
         return;
       case '!ptz':
@@ -112,7 +111,6 @@ function chatBot (str, context) {
           sayForSubs()
           return
         }
-        saveShortcut('undo', 'undo')
         ptz.command(str);
         return;
 
