@@ -1,17 +1,12 @@
-import redis from 'redis'
 import tmi from 'tmi.js'
 import OBSWebSocket from 'obs-websocket-js'
 import OBSView from './src/obs-view.js'
 import PTZ from './src/ptz.js'
 
-let redclient = redis.createClient({
-    host: "127.0.0.1"
-  })
-
 const obs = new OBSWebSocket();
 
 // CHANGE ME: set OBS Pass
-obs.connect({address:'localhost:4444', password:'pass'})
+obs.connect({address:'localhost:4444', password:'Thegoatchick'})
 .then(() => {
   console.log('OBS Connected')
 })
@@ -22,11 +17,9 @@ obs.connect({address:'localhost:4444', password:'pass'})
 
 // CHANGE ME: set PTZ cam IP/User/Pass
 let ptz = new PTZ({
-  redis:    redclient,
-  name:     'goat-ptz',
-  hostname: '192.168.11.97',
-  username: 'user',
-  password: 'password',
+  hostname: '192.168.1.63',
+  username: 'ptz',
+  password: 'password$$',
   version:  2
 })
 
@@ -76,7 +69,6 @@ function onCheerHandler (target, context, msg) {
 function onChatHandler (target, context, msg) {
   if (context['display-name'] == "HerdBoss") return; // ignore the bot
   chatBot(msg, context)
-  feedBot(msg, context)
 }
 
 // Called every time the bot connects to Twitch chat:
@@ -90,40 +82,8 @@ function onDisconnectedHandler (reason) {
   process.exit(1)
 }
 
-function sayCoords (name, coords) {
-  chat.say(twitch_channel, name + " Coordinates - PAN:" + coords.pan + " TILT:" + coords.tilt + " ZOOM:" + coords.zoom)
-}
-
 function sayForSubs () {
   chat.say(twitch_channel,"This command is reserved for Subscribers")
-}
-
-function moveToSettings(settings) {
-    if (!settings) {
-      chat.say(twitch_channel,"Personal shortcut not found.")
-      return
-    }
-    for (let x = 0; x < 4; x++) {
-      if (settings.obs[x]) obs_view.setWindow(x, settings.obs[x])
-    }
-    obs_view.updateOBS()
-    if (settings.ptz) ptz.move(settings.ptz)
-}
-
-function saveShortcut(username, shortcut) {
-  let _user = new Subscriber(redclient, username, 'goat')
-  let _obs = [
-      obs_view.obsWindows[0].item,
-      obs_view.obsWindows[1].item,
-      obs_view.obsWindows[2].item
-    ]
-
-  let _ptz = JSON.stringify(ptz.data.coords)
-  let settings = {
-    obs: _obs,
-    ptz: JSON.parse(_ptz),
-  }
-  _user.saveShortcut(shortcut, settings)
 }
 
 function chatBot (str, context) {
@@ -136,12 +96,6 @@ function chatBot (str, context) {
   if (obs_view.cameraTimeout(context.username)) return
   matches.forEach(match => {
     switch (match) {
-      case '!ptzcoords':
-        sayCoords("PTZ", ptz.data.coords)
-        return
-      case '!ptzshortcuts':
-        chat.say(twitch_channel,"PTZ: " + ptz.getShortcutList())
-        return
 
       // SUBSCRIBER COMMANDS
       case '!cam':
@@ -153,38 +107,6 @@ function chatBot (str, context) {
         saveShortcut('undo', 'undo')
         obs_view.processChat(str);
         return;
-      case '!undo':
-        if (!context.subscriber) {
-          sayForSubs()
-          return
-        }
-        user = new Subscriber(redclient, 'undo', 'rooster')
-        user.getShortcut('undo', settings => {
-          moveToSettings(settings)
-        })
-        chat.say(twitch_channel,"but I liked it...")
-        return
-      case '!fav':
-        if (!context.subscriber) {
-          sayForSubs()
-          return
-        }
-        saveShortcut('undo', 'undo')
-        shortcut = str.substring(5)
-        user = new Subscriber(redclient, context.username, twitch_channel)
-        user.getShortcut(shortcut, settings => {
-          moveToSettings(settings)
-        })
-        return
-      case '!favsave':
-        if (!context.subscriber) {
-          sayForSubs()
-          return
-        }
-        shortcut = str.substring(8)
-        saveShortcut(context.username, shortcut)
-        chat.say(twitch_channel,"Personal Shortcut Updated: " + shortcut)
-        return
       case '!ptz':
         if (!context.subscriber) {
           sayForSubs()
@@ -231,14 +153,6 @@ function chatBot (str, context) {
             chat.say(twitch_channel,"Starting")
             obs.send('StartStreaming')
           }, 10000)
-        }
-        return;
-
-      case '!ptzsave':
-        if (context.mod) {
-          shortcut = str.substring(7)
-          ptzca.saveShortcut(shortcut)
-          chat.say(twitch_channel,"PTZ Shortcut Updated: " + shortcut)
         }
         return;
     }

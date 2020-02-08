@@ -3,7 +3,6 @@ import { Cam } from 'onvif'
 export default class PTZ {
   constructor (options) {
 
-    this.redis = options.redis
     this.name = options.name
     this.version = options.version || 1
 
@@ -21,29 +20,14 @@ export default class PTZ {
       }
     })
 
-    this.redis.send_command("json.get", [this.name], (err, res) => {
-      if (err) {
-        console.log(err)
-        return
-      }
-      if (!res) {
-        // initialize object
-        this.data = {
-          coords: {
-            pan: 240,
-            tilt: 20,
-            zoom: 50
-          },
-          shortcuts: {}
-        }
-        this.redis.send_command("json.set", [this.name, ".", JSON.stringify(this.data)], (err, res) => {
-          if (err) console.log(err)
-        })
-      } else {
-        this.data = JSON.parse(res)
-        //console.log(JSON.stringify(this.data, null, 2))
-      }
-    })
+    this.data = {
+      coords: {
+        pan: 240,
+        tilt: 20,
+        zoom: 50
+      },
+      shortcuts: {}
+    }
 
     this.pan_regex = /\b(p|pan|right|left|r|l) ?(\+|-)? ?([0-9]{1,3})/gm
     this.tilt_regex = /\b(t|tilt|down|up|d|u) ?(\+|-)? ?([0-9]{1,3})/gm
@@ -59,18 +43,6 @@ export default class PTZ {
       shortcuts = shortcuts + item + " "
     })
     return shortcuts
-  }
-
-
-  saveShortcut (shortcut) {
-    let str = shortcut.toLowerCase().trim()
-    if (str.indexOf(' ') >= 0) return
-    this.redis.send_command("json.set", [this.name, ".shortcuts." + str, JSON.stringify(this.data.coords)], (err, res) => {
-      if (err) console.log(err)
-    })
-    // make copy
-    let json = JSON.stringify(this.data.coords)
-    this.data.shortcuts[str] = JSON.parse(json)
   }
 
   calcPan (pan) {
@@ -125,17 +97,6 @@ export default class PTZ {
   status() {
     this.cam.getStatus({}, (err, res) => {
       console.log(JSON.stringify(res, null, 2))
-    })
-  }
-
-  move (coords) {
-    this.cam.absoluteMove({
-      x: this.calcPan(coords.pan),
-      y: this.calcTilt(coords.tilt),
-      zoom: this.calcZoom(coords.zoom)
-    })
-    this.redis.send_command("json.set", [this.name, ".coords", JSON.stringify(this.data.coords)], (err, res) => {
-      if (err) console.log(err)
     })
   }
 
