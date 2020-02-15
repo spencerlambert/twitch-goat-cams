@@ -16,15 +16,22 @@ obs.connect({address:'localhost:4444', password:'Thegoatchick'})
 })
 
 // CHANGE ME: set PTZ cam IP/User/Pass
-let ptz = new PTZ({
+let kids = new PTZ({
   hostname: '192.168.1.63',
   username: 'ptz',
-  password: 'password$$',
+  password: 'Password$$',
   version:  2
 })
 
-var obs_view = new OBSView(obs)
+let does = new PTZ({
+  hostname: '192.168.1.62',
+  username: 'ptz',
+  password: 'Password$$',
+  version:  2
+})
 
+// Set up OBS window changer
+var obs_view = new OBSView(obs)
 obs_view.addView('Yard',       ['yard'])
 obs_view.addView('Bucks',      ['bucks'])
 obs_view.addView('Does',       ['does'])
@@ -32,8 +39,8 @@ obs_view.addView('Ponds',      ['ponds','pond'])
 obs_view.addView('Feeder',     ['feeder'])
 obs_view.addView('Mobile',     ['mobile'])
 obs_view.addView('Parlor',     ['parlor'])
-obs_view.addView('Kidding',    ['kidding','kids'])
-obs_view.addView('PTZ',        ['ptz'])
+obs_view.addView('Kidding',    ['kidding')
+obs_view.addView('Kids',       ['kids','ptz'])
 
 // twitch IRC options
 // CHANGE ME: set OAUTH key
@@ -107,11 +114,19 @@ function chatBot (str, context) {
         obs_view.processChat(str);
         return;
       case '!ptz':
+      case '!kids':
         if (!context.subscriber) {
           sayForSubs()
           return
         }
-        ptz.command(str);
+        kids.command(str);
+        return;
+      case '!does':
+        if (!context.subscriber) {
+          sayForSubs()
+          return
+        }
+        does.command(str);
         return;
 
 
