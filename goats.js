@@ -39,7 +39,8 @@ obs_view.addView('Ponds',      ['ponds','pond'])
 obs_view.addView('Feeder',     ['feeder'])
 obs_view.addView('Mobile',     ['mobile'])
 obs_view.addView('Parlor',     ['parlor'])
-obs_view.addView('Kidding',    ['kidding')
+obs_view.addView('KiddingA',   ['kiddinga','kida'])
+obs_view.addView('KiddingB',   ['kiddingb','kidb'])
 obs_view.addView('Kids',       ['kids','ptz'])
 
 // twitch IRC options
